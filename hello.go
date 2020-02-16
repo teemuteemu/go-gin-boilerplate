@@ -2,9 +2,9 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/kelseyhightower/envconfig"
 	"hello/api"
-	"log"
+	"hello/config"
+	"hello/db"
 	"strconv"
 )
 
@@ -17,14 +17,11 @@ func setupRouter() *gin.Engine {
 }
 
 func main() {
-	var config Config
-	err := envconfig.Process("hello", &config)
-
-	if err != nil {
-		log.Fatal(err.Error())
-	}
+	config := config.GetConfig()
+	db := db.Connect(&config)
+	defer db.Close()
 
 	router := setupRouter()
-	port := ":" + strconv.Itoa(config.Port)
+	port := ":" + strconv.Itoa(config.HTTPPort)
 	router.Run(port)
 }
