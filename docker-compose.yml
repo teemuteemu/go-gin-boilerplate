@@ -5,20 +5,14 @@ services:
     image: postgres
     ports:
       - 5432:5432
-    networks:
-      - hellonet
     environment:
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=passu
+    volumes:
+      - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
 
   adminer:
     image: adminer
     restart: always
     ports:
       - 8080:8080
-    networks:
-      - hellonet
-
-networks:
-  hellonet:
-    driver: bridge

@@ -1,6 +1,5 @@
 FROM golang:latest AS build
 
-# RUN mkdir /app
 COPY . /app/
 
 WORKDIR /app
@@ -16,7 +15,7 @@ WORKDIR /root
 COPY --from=build /app/main .
 
 ENV HTTP_PORT=8000
-ENV DB_NAME=gorm_test
+ENV DB_NAME=hello
 ENV DB_USER=user
 ENV DB_PASSWORD=passu
 EXPOSE 8000
