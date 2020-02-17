@@ -3,15 +3,16 @@ package main
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
 	"hello/api"
 	"hello/config"
 	"hello/db"
 )
 
-func setupRouter() *gin.Engine {
+func setupRouter(db *gorm.DB) *gin.Engine {
 	router := gin.New()
 
-	api.ApplyRoutes(router)
+	api.ApplyRoutes(router, db)
 
 	return router
 }
@@ -21,7 +22,7 @@ func main() {
 	db := db.Connect(&config)
 	defer db.Close()
 
-	router := setupRouter()
+	router := setupRouter(db)
 	port := fmt.Sprintf(":%d", config.HTTPPort)
 	router.Run(port)
 }

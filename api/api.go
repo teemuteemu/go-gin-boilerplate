@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
 	"hello/api/v1"
 	"net/http"
 )
@@ -12,11 +13,11 @@ func health(c *gin.Context) {
 	})
 }
 
-func ApplyRoutes(router *gin.Engine) {
+func ApplyRoutes(router *gin.Engine, db *gorm.DB) {
 	router.GET("/health", health)
 
 	api := router.Group("/api")
 	{
-		apiv1.ApplyRoutes(api)
+		apiv1.ApplyRoutes(api, db)
 	}
 }
