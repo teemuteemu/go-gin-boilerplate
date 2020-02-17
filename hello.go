@@ -1,11 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"hello/api"
 	"hello/config"
 	"hello/db"
-	"strconv"
 )
 
 func setupRouter() *gin.Engine {
@@ -22,6 +22,6 @@ func main() {
 	defer db.Close()
 
 	router := setupRouter()
-	port := ":" + strconv.Itoa(config.HTTPPort)
+	port := fmt.Sprintf(":%d", config.HTTPPort)
 	router.Run(port)
 }
