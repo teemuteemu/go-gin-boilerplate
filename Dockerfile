@@ -15,7 +15,10 @@ RUN apk --no-cache add ca-certificates
 WORKDIR /root
 COPY --from=build /app/main .
 
-ENV HELLO_PORT=8000
+ENV HTTP_PORT=8000
+ENV DB_NAME=gorm_test
+ENV DB_USER=user
+ENV DB_PASSWORD=passu
 EXPOSE 8000
 
 CMD ["./main"]

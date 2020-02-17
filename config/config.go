@@ -5,8 +5,7 @@ import (
 )
 
 type Config struct {
-	HTTPPort int `envconfig:"http:port" default:"8000"`
-
+	HTTPPort   int    `envconfig:"http_port" default:"8000"`
 	DBHost     string `envconfig:"db_host" default:"localhost"`
 	DBPort     uint   `envconfig:"db_port" default:"5432"`
 	DBName     string `envconfig:"db_name"`
