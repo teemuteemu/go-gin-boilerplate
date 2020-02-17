@@ -27,28 +27,32 @@ func (e *Env) list(c *gin.Context) {
 
 func (e *Env) get(c *gin.Context) {
 	id := c.Param("id")
-	var dummy models.Dummy
-	errors := e.db.Find(&dummy, id).GetErrors()
+	var model models.Dummy
+	errors := e.db.Find(&model, id).GetErrors()
 
 	if len(errors) == 0 {
-		c.JSON(http.StatusOK, dummy)
+		c.JSON(http.StatusOK, model)
 		return
 	}
 
-	c.JSON(http.StatusNotFound, gin.H{})
+	c.JSON(http.StatusNotFound, gin.H{"error": "not_found"})
 }
 
 func (e *Env) create(c *gin.Context) {
-	var dummy models.Dummy
-	c.BindJSON(&dummy)
+	var model models.Dummy
 
-	if res := e.db.NewRecord(&dummy); res == true {
-		e.db.Create(&dummy)
-		c.JSON(http.StatusOK, gin.H{"status": "ok"})
+	if err := c.ShouldBindJSON(&model); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusBadRequest, gin.H{"status": "bad request"})
+	if res := e.db.NewRecord(&model); res == true {
+		e.db.Create(&model)
+		c.JSON(http.StatusOK, gin.H{"created": model})
+		return
+	}
+
+	c.JSON(http.StatusBadRequest, gin.H{"error": "bad request"})
 }
 
 func ApplyRoutes(r *gin.RouterGroup, db *gorm.DB) {
