@@ -1,8 +1,10 @@
 package apiv1
 
 import (
+	// "fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
+	"hello/models"
 	"net/http"
 )
 
@@ -10,29 +12,43 @@ type Env struct {
 	db *gorm.DB
 }
 
-type User struct {
-	FirstName string `json:"first_name"`
-	Age       int    `json:"age"`
-}
-
+/*
 type PostPayload struct {
-	Foo string `json:"foo" binding:"required"`
+	SomeField string `json:"" binding:"required"`
+}
+*/
+
+func (e *Env) list(c *gin.Context) {
+	var dummies []models.Dummy
+	e.db.Find(&dummies)
+
+	c.JSON(http.StatusOK, dummies)
 }
 
-func (e *Env) dummyGet(c *gin.Context) {
-	name := c.Param("name")
-	user1 := User{FirstName: name, Age: 35}
+func (e *Env) get(c *gin.Context) {
+	id := c.Param("id")
+	var dummy models.Dummy
+	errors := e.db.Find(&dummy, id).GetErrors()
 
-	c.JSON(http.StatusOK, user1)
-}
-
-func (e *Env) dummyPost(c *gin.Context) {
-	var payload PostPayload
-	if err := c.ShouldBindJSON(&payload); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"status": "bad request"})
+	if len(errors) == 0 {
+		c.JSON(http.StatusOK, dummy)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"status": "ok"})
+
+	c.JSON(http.StatusNotFound, gin.H{})
+}
+
+func (e *Env) create(c *gin.Context) {
+	var dummy models.Dummy
+	c.BindJSON(&dummy)
+
+	if res := e.db.NewRecord(&dummy); res == true {
+		e.db.Create(&dummy)
+		c.JSON(http.StatusOK, gin.H{"status": "ok"})
+		return
+	}
+
+	c.JSON(http.StatusBadRequest, gin.H{"status": "bad request"})
 }
 
 func ApplyRoutes(r *gin.RouterGroup, db *gorm.DB) {
@@ -40,7 +56,8 @@ func ApplyRoutes(r *gin.RouterGroup, db *gorm.DB) {
 
 	v1 := r.Group("/v1")
 	{
-		v1.GET("/dummy_get/:name", env.dummyGet)
-		v1.POST("/dummy_post", env.dummyPost)
+		v1.GET("/dummy", env.list)
+		v1.GET("/dummy/:id", env.get)
+		v1.POST("/dummy", env.create)
 	}
 }
