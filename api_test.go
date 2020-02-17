@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"net/http"
 	"net/http/httptest"
@@ -9,7 +10,7 @@ import (
 	"testing"
 )
 
-func TestHealth(t *testing.T) {
+func setupMockedRouter(t *testing.T) *gin.Engine {
 	mockDB, _, err := sqlmock.New()
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
@@ -21,6 +22,12 @@ func TestHealth(t *testing.T) {
 	}
 
 	router := setupRouter(db)
+
+	return router
+}
+
+func TestHealth(t *testing.T) {
+	router := setupMockedRouter(t)
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/health", nil)
